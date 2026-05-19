@@ -128,17 +128,20 @@ def search_todos():
         sql = f"SELECT * FROM todos WHERE title LIKE '%{query}%'"
         
         # Execute raw SQL (DANGEROUS!)
-        result = db.session.execute(sql)
+        from sqlalchemy import text
+        result = db.session.execute(text(sql))
         
         # Convert results to list of dicts
         todos = []
         for row in result:
+            # Handle row as a tuple or Row object
+            row_data = tuple(row) if hasattr(row, '__iter__') else row
             todos.append({
-                'id': row[0],
-                'title': row[1],
-                'description': row[2],
-                'completed': bool(row[3]),
-                'created_at': row[4]
+                'id': row_data[0],
+                'title': row_data[1],
+                'description': row_data[2],
+                'completed': bool(row_data[3]),
+                'created_at': str(row_data[4]) if row_data[4] else None
             })
         
         return jsonify(todos), 200
@@ -183,6 +186,6 @@ if __name__ == '__main__':
         db.create_all()
     
     # VULNERABILITY: Running in debug mode in production
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8080)
 
 # Made with Bob

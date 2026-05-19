@@ -9,7 +9,15 @@ All sensitive credentials are stored directly in the source code.
 
 # VULNERABILITY: Hardcoded database credentials
 # Anyone with access to the code can see the password
-DATABASE_URL = "postgresql://admin:SuperSecret123@localhost:5432/todos_db"
+# Note: SQLite doesn't use authentication, but these credentials demonstrate
+# the vulnerability pattern that would exist with PostgreSQL/MySQL
+DB_USERNAME = "admin"
+DB_PASSWORD = "SuperSecret123"
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "todos_db"
+
+DATABASE_URL = "sqlite:///todos.db"
 
 # VULNERABILITY: Hardcoded API key
 # This key should be in environment variables or a secrets manager

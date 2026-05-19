@@ -364,22 +364,31 @@ Follow these steps to connect your MCP server to Bob:
    ```
 6. Save the file
 7. Restart Bob or reload VS Code (`Cmd+Shift+P → Reload Window`)
+> **⚠️ Important:** Do not forget to change the path under the `cwd` that links to the directory of the mcp-server `server.js` !
 
 > **⚠️ Important:** While you can configure MCP servers in any mode, MCP tools can only be used when Bob is in **Advanced mode**. Make sure to switch to Advanced mode before testing your MCP server tools.
 
 ### Step 5.2: Start and Test Your Server
 
 **🔨 ACTION: Start the server and test it with Bob**
-
-1. **Start the MCP server:**
+1. **Get Credentials for the PostgreSQL database:**
+  - Ask your instructor for the database credentials.
+  Use the following commands and fill out the placeholders with the credentials you receive:
+  ```bash
+  cd lab4/mcp-server
+  cp .env.example .env
+  ```
+2. **Test connection to the database:**
    ```bash
-   cd lab4/mcp-server
+   node test-connection.js
+   ```
+3. **Start the MCP server:**
+   ```bash
    node server.js
    ```
+4. **Switch Bob to Advanced mode** (required to use MCP tools)
 
-2. **Switch Bob to Advanced mode** (required to use MCP tools)
-
-3. Test your MCP server tools by asking Bob:
+5. Test your MCP server tools by asking Bob:
    - "What MCP servers are connected?"
    - "Show me the 6 cheapest products in ascending order"
    - "Get the schema for the users table"

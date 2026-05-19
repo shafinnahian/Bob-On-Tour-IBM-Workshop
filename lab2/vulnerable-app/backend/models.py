@@ -29,4 +29,22 @@ class Todo(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
+
+class Secret(db.Model):
+    """Secret Model - Contains sensitive information that should be protected"""
+    
+    __tablename__ = 'secrets'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    secret_text = db.Column(db.Text, nullable=False)
+    
+    def __repr__(self):
+        return f'<Secret {self.id}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'secret_text': self.secret_text
+        }
+
 # Made with Bob

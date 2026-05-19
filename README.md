@@ -65,6 +65,31 @@ For detailed setup instructions, see [prerequisites.md](prerequisites.md).
 
 ## 📚 Lab Structure
 
+### ⚠️ Important: Open Labs in Separate Workspaces
+
+For the best experience with Bob, **open each lab as a separate workspace** after cloning:
+
+```bash
+# First, clone the repository
+git clone <repository-url>
+cd bob-on-tour
+```
+
+**Then open the specific lab folder in Bob:**
+
+1. Open Bob
+2. Click **File → Open Folder** (or **File → Open...** on macOS)
+3. Navigate to the `bob-on-tour` directory
+4. Select the specific lab folder (e.g., `lab1`, `lab2`, `lab3`, or `lab4`)
+5. Click **Open**
+
+**Why open individual lab folders?**
+- ✅ Bob focuses on the correct lab context
+- ✅ No confusion with files from other labs
+- ✅ Better performance and clearer workspace
+
+---
+
 ### 🟢 Beginner Track (Labs 1-2)
 
 #### Lab 1: Building a Todo Application (45 minutes)
@@ -274,6 +299,21 @@ Special thanks to the Bob development team and the community for their support.
 ## Quick Start
 
 Ready to begin? Here's how to get started:
+
+0. **Open Individual Lab Folder (Important!)**
+   
+   For the best experience with Bob, open each lab as a separate workspace:
+   
+   1. Open Bob
+   2. Click **File → Open Folder** (or **File → Open...** on macOS)
+   3. Navigate to `bob-on-tour` directory
+   4. Select the specific lab folder (e.g., `lab1`, `lab2`, `lab3`, or `lab4`)
+   5. Click **Open**
+   
+   **Why?** Opening individual lab folders ensures:
+   - Bob focuses on the correct lab context
+   - No confusion with files from other labs
+   - Better performance and clearer workspace
 
 1. **Verify Prerequisites**
    ```bash

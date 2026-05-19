@@ -13,6 +13,7 @@ In this lab, you'll learn to use Bob to translate code from one programming lang
 ## What You'll Translate
 
 A Python data processing script that:
+
 - Reads CSV files
 - Performs statistical calculations
 - Exports results to JSON
@@ -23,8 +24,9 @@ A Python data processing script that:
 ## Learning Objectives
 
 By the end of this lab, you will:
+
 - ✅ Use Ask mode to analyze source code
-- ✅ Use Architect mode to plan translation strategy
+- ✅ Use Plan mode to plan translation strategy
 - ✅ Use Code mode to implement translation
 - ✅ Understand language-specific patterns
 - ✅ Map Python features to JavaScript equivalents
@@ -34,6 +36,7 @@ By the end of this lab, you will:
 ## Prerequisites
 
 Before starting, ensure you have:
+
 - [ ] Completed Lab 1 and Lab 2 (or familiar with Bob's modes)
 - [ ] Python 3.8+ installed
 - [ ] Node.js 14+ installed
@@ -63,6 +66,7 @@ Let's examine the Python data processor that we'll be translating.
 Open `lab3/source/data_processor.py` and review the code structure.
 
 **Key Features to Notice:**
+
 - Class-based design
 - Type hints (`: str`, `-> Dict`)
 - Context managers (`with open()`)
@@ -89,8 +93,9 @@ Analyze the Python code in lab3/source/data_processor.py and explain:
 **Expected Response:**
 
 Bob should explain:
+
 - **Purpose**: Processes CSV data and generates statistical summaries
-- **Components**: 
+- **Components**:
   - `DataProcessor` class with methods for loading, analyzing, and exporting
   - File I/O operations
   - Statistical calculations
@@ -150,15 +155,15 @@ Include:
 
 **Expected Mapping:**
 
-| Python Feature | JavaScript Equivalent | Notes |
-|----------------|----------------------|-------|
-| `class DataProcessor` | `class DataProcessor` | Classes work similarly |
-| `def __init__(self, filename: str)` | `constructor(filename)` | Constructor syntax differs |
-| `with open(file)` | `fs.promises.readFile()` | Async in JavaScript |
-| `csv.DictReader` | `csv-parser` library | Need npm package |
-| List comprehension | `Array.map()`, `Array.filter()` | More verbose |
-| Type hints | JSDoc comments | Optional but recommended |
-| `if __name__ == '__main__'` | Direct execution or module check | Different pattern |
+| Python Feature                      | JavaScript Equivalent            | Notes                      |
+| ----------------------------------- | -------------------------------- | -------------------------- |
+| `class DataProcessor`               | `class DataProcessor`            | Classes work similarly     |
+| `def __init__(self, filename: str)` | `constructor(filename)`          | Constructor syntax differs |
+| `with open(file)`                   | `fs.promises.readFile()`         | Async in JavaScript        |
+| `csv.DictReader`                    | `csv-parser` library             | Need npm package           |
+| List comprehension                  | `Array.map()`, `Array.filter()`  | More verbose               |
+| Type hints                          | JSDoc comments                   | Optional but recommended   |
+| `if __name__ == '__main__'`         | Direct execution or module check | Different pattern          |
 
 ### 2.3: Plan Module Structure
 
@@ -193,11 +198,12 @@ List the packages and their purposes.
 ```
 
 **Required Packages:**
+
 - `csv-parser`: For parsing CSV files
 - `fs` (built-in): For file operations
 - No additional packages needed (keep it simple)
 
-**💡 Key Learning**: Architect mode helps create a clear roadmap before coding.
+**💡 Key Learning**: Plan mode helps create a clear roadmap before coding.
 
 > **💡 Context Management at Work**
 > As you work through this translation, Bob is using [dynamic context window compression](../bob-differentiators.md#dynamic-context-window-compression) to efficiently manage both the Python source code and JavaScript target code in memory. This allows Bob to maintain full context of both codebases while minimizing token usage and costs.
@@ -282,6 +288,7 @@ What are the key differences between Python's context manager and JavaScript's s
 **Key Translation Points:**
 
 **Python Original:**
+
 ```python
 def load_data(self) -> None:
     with open(self.filename, 'r') as file:
@@ -290,6 +297,7 @@ def load_data(self) -> None:
 ```
 
 **JavaScript Translation:**
+
 ```javascript
 async loadData() {
     return new Promise((resolve, reject) => {
@@ -318,6 +326,7 @@ How did you convert Python's list comprehensions and built-in functions to JavaS
 **Key Translation Points:**
 
 **Python Original:**
+
 ```python
 def calculate_statistics(self) -> Dict:
     numeric_fields = [k for k in self.data[0].keys()
@@ -331,6 +340,7 @@ def calculate_statistics(self) -> Dict:
 ```
 
 **JavaScript Translation:**
+
 ```javascript
 calculateStatistics() {
     const numericFields = Object.keys(this.data[0])
@@ -363,20 +373,21 @@ Why did you use an async IIFE (Immediately Invoked Function Expression)?
 ```
 
 **JavaScript Translation:**
+
 ```javascript
 // Main execution
 if (require.main === module) {
-    (async () => {
-        try {
-            const processor = new DataProcessor('data.csv');
-            await processor.loadData();
-            await processor.exportResults('statistics.json');
-            console.log('✅ Processing complete!');
-        } catch (error) {
-            console.error('❌ Error:', error.message);
-            process.exit(1);
-        }
-    })();
+  (async () => {
+    try {
+      const processor = new DataProcessor("data.csv");
+      await processor.loadData();
+      await processor.exportResults("statistics.json");
+      console.log("✅ Processing complete!");
+    } catch (error) {
+      console.error("❌ Error:", error.message);
+      process.exit(1);
+    }
+  })();
 }
 
 module.exports = DataProcessor;
@@ -390,20 +401,24 @@ module.exports = DataProcessor;
 
 Let's test both versions and compare the results.
 
-### 4.1: Create Sample Data
+**Note**: Both the Python and JavaScript data processors automatically generate `sample_data.csv` if it doesn't exist. The sample data will have the following structure:
 
-Create a sample CSV file for testing:
+**sample_data.csv:**
 
-**data.csv:**
 ```csv
 name,age,score,grade
 Alice,25,95.5,A
 Bob,30,87.3,B
 Charlie,22,92.1,A
 Diana,28,88.7,B
+Eve,26,91.2,A
 ```
 
-### 4.2: Run Python Version
+This sample data includes both numeric fields (age, score) and text fields (name, grade), allowing the processor to demonstrate statistical calculations on the numeric columns.
+
+### 4.1: Run Python Version
+
+Note: No virtual environment is needed, as there are no dependencies to install.
 
 ```bash
 cd lab3/source
@@ -411,47 +426,52 @@ python data_processor.py
 ```
 
 **Expected Output:**
+
 ```
 Processing complete!
 Results saved to statistics.json
 ```
 
 **statistics.json:**
+
 ```json
 {
   "age": {
-    "mean": 26.25,
-    "min": 22,
-    "max": 30,
-    "count": 4
+    "mean": 26.2,
+    "min": 22.0,
+    "max": 30.0,
+    "count": 5,
+    "sum": 131.0
   },
   "score": {
-    "mean": 90.9,
+    "mean": 90.96,
     "min": 87.3,
     "max": 95.5,
-    "count": 4
+    "count": 5,
+    "sum": 454.8
   }
 }
 ```
 
-### 4.3: Run JavaScript Version
+### 4.2: Run JavaScript Version
 
 **Note**: Bob created the JavaScript translation in the `lab3/` directory (not in a separate target folder).
 
 ```bash
 # Navigate to lab3 directory where the translated JavaScript file is located
-cd lab3
+cd ..
 npm install
 node data_processor.js
 ```
 
 **Expected Output:**
+
 ```
 ✅ Processing complete!
 Results saved to statistics.json
 ```
 
-### 4.4: Compare Results
+### 4.3: Compare Results
 
 **Prompt for Bob (Ask Mode):**
 
@@ -465,9 +485,10 @@ What are the key differences in:
 5. Performance characteristics
 ```
 
-### 4.5: Verify Functionality
+### 4.4: Verify Functionality
 
 Both versions should produce identical output:
+
 - ✅ Same statistical calculations
 - ✅ Same JSON structure
 - ✅ Same file handling
@@ -493,7 +514,9 @@ You've successfully completed Lab 3! You've learned to:
 ## Translation Patterns Learned
 
 ### 1. Class Translation
+
 **Python:**
+
 ```python
 class DataProcessor:
     def __init__(self, filename: str):
@@ -501,45 +524,55 @@ class DataProcessor:
 ```
 
 **JavaScript:**
+
 ```javascript
 class DataProcessor {
-    constructor(filename) {
-        this.filename = filename;
-    }
+  constructor(filename) {
+    this.filename = filename;
+  }
 }
 ```
 
 ### 2. List Comprehensions → Array Methods
+
 **Python:**
+
 ```python
 values = [float(row[field]) for row in self.data]
 ```
 
 **JavaScript:**
+
 ```javascript
-const values = this.data.map(row => parseFloat(row[field]));
+const values = this.data.map((row) => parseFloat(row[field]));
 ```
 
 ### 3. File I/O
+
 **Python:**
+
 ```python
 with open(filename, 'r') as file:
     data = file.read()
 ```
 
 **JavaScript:**
+
 ```javascript
-const data = await fs.promises.readFile(filename, 'utf8');
+const data = await fs.promises.readFile(filename, "utf8");
 ```
 
 ### 4. Type Hints → JSDoc
+
 **Python:**
+
 ```python
 def calculate_statistics(self) -> Dict:
     pass
 ```
 
 **JavaScript:**
+
 ```javascript
 /**
  * @returns {Object} Statistics object
@@ -551,19 +584,20 @@ calculateStatistics() {
 
 ## Language Comparison
 
-| Feature | Python | JavaScript |
-|---------|--------|------------|
-| **Typing** | Optional type hints | JSDoc or TypeScript |
-| **Async** | Sync by default | Async by default (Node.js) |
-| **File I/O** | Built-in, sync | Requires fs module, async |
-| **CSV** | Built-in csv module | Requires csv-parser |
-| **Arrays** | List comprehensions | Array methods (map, filter) |
-| **Classes** | class keyword | class keyword (ES6+) |
-| **Modules** | import/from | require/module.exports |
+| Feature      | Python              | JavaScript                  |
+| ------------ | ------------------- | --------------------------- |
+| **Typing**   | Optional type hints | JSDoc or TypeScript         |
+| **Async**    | Sync by default     | Async by default (Node.js)  |
+| **File I/O** | Built-in, sync      | Requires fs module, async   |
+| **CSV**      | Built-in csv module | Requires csv-parser         |
+| **Arrays**   | List comprehensions | Array methods (map, filter) |
+| **Classes**  | class keyword       | class keyword (ES6+)        |
+| **Modules**  | import/from         | require/module.exports      |
 
 ## Best Practices Applied
 
 ### Python Best Practices
+
 - ✅ Type hints for clarity
 - ✅ Context managers for resources
 - ✅ List comprehensions for readability
@@ -571,6 +605,7 @@ calculateStatistics() {
 - ✅ PEP 8 style guide
 
 ### JavaScript Best Practices
+
 - ✅ JSDoc for type documentation
 - ✅ Async/await for async operations
 - ✅ Promises for async patterns
@@ -581,9 +616,11 @@ calculateStatistics() {
 ## Common Translation Challenges
 
 ### Challenge 1: Synchronous vs Asynchronous
+
 **Problem**: Python's sync I/O vs JavaScript's async I/O
 
 **Solution**: Use async/await in JavaScript
+
 ```javascript
 async loadData() {
     await fs.promises.readFile(this.filename);
@@ -591,27 +628,33 @@ async loadData() {
 ```
 
 ### Challenge 2: Built-in Libraries
+
 **Problem**: Python's rich standard library vs JavaScript's minimal core
 
 **Solution**: Use npm packages
+
 ```bash
 npm install csv-parser
 ```
 
 ### Challenge 3: List Comprehensions
+
 **Problem**: Python's concise list comprehensions
 
 **Solution**: Use Array methods
+
 ```javascript
 // Python: [x*2 for x in numbers if x > 0]
 // JavaScript:
-numbers.filter(x => x > 0).map(x => x * 2)
+numbers.filter((x) => x > 0).map((x) => x * 2);
 ```
 
 ### Challenge 4: Type Safety
+
 **Problem**: Python's optional typing vs JavaScript's dynamic typing
 
 **Solution**: Use JSDoc or TypeScript
+
 ```javascript
 /**
  * @param {string} filename
@@ -623,13 +666,16 @@ async loadData(filename) { }
 ## Next Steps
 
 ### Practice More Translations
+
 Try translating:
+
 1. **Web scraper** - Python requests → JavaScript axios
 2. **API server** - Python Flask → JavaScript Express
 3. **Data analysis** - Python pandas → JavaScript data libraries
 4. **CLI tool** - Python argparse → JavaScript commander
 
 ### Explore Advanced Topics
+
 - TypeScript for better type safety
 - Async iterators in JavaScript
 - Generator functions
@@ -637,6 +683,7 @@ Try translating:
 - Performance optimization
 
 ### Build Cross-Platform Tools
+
 - Create libraries that work in both languages
 - Build APIs that can be consumed by either
 - Develop tools that leverage strengths of each
@@ -646,12 +693,14 @@ Try translating:
 ### Python Issues
 
 **Problem**: `ModuleNotFoundError: No module named 'csv'`
+
 ```bash
 # csv is built-in, check Python version
 python --version  # Should be 3.x
 ```
 
 **Problem**: Type hint errors
+
 ```bash
 # Type hints are optional, code still runs
 # Or use Python 3.8+ for better support
@@ -660,17 +709,20 @@ python --version  # Should be 3.x
 ### JavaScript Issues
 
 **Problem**: `Cannot find module 'csv-parser'`
+
 ```bash
 npm install csv-parser
 ```
 
 **Problem**: Async/await not working
+
 ```bash
 # Ensure Node.js 14+ for full async/await support
 node --version
 ```
 
 **Problem**: File not found errors
+
 ```bash
 # Check file paths are relative to execution directory
 # Use path.join() for cross-platform paths
@@ -681,16 +733,19 @@ const filePath = path.join(__dirname, 'data.csv');
 ## Additional Resources
 
 ### Python Resources
+
 - [Python Documentation](https://docs.python.org/)
 - [Type Hints Guide](https://docs.python.org/3/library/typing.html)
 - [CSV Module](https://docs.python.org/3/library/csv.html)
 
 ### JavaScript Resources
+
 - [Node.js Documentation](https://nodejs.org/docs/)
 - [MDN JavaScript Guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [csv-parser](https://www.npmjs.com/package/csv-parser)
 
 ### Translation Guides
+
 - [Python to JavaScript Cheat Sheet](https://github.com/topics/python-to-javascript)
 - [Async Patterns](https://javascript.info/async-await)
 - [JSDoc Guide](https://jsdoc.app/)
@@ -698,6 +753,7 @@ const filePath = path.join(__dirname, 'data.csv');
 ## Feedback
 
 How was this lab? We'd love to hear:
+
 - Did the translation process make sense?
 - Were the language mappings clear?
 - What other languages would you like to translate?
@@ -707,6 +763,7 @@ How was this lab? We'd love to hear:
 **Congratulations on completing all three Bob Bootcamp Labs!** 🎓
 
 You've mastered:
+
 - Building applications with Bob (Lab 1)
 - Security analysis and fixes (Lab 2)
 - Code translation between languages (Lab 3)
@@ -715,4 +772,4 @@ You've mastered:
 
 ---
 
-*Last Updated: December 2025*
+_Last Updated: December 2025_

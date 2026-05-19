@@ -173,6 +173,30 @@ bob --version
 # Bob should appear in your extensions/plugins
 ```
 
+### 5. Docker (Colima)
+Docker is needed to be able to install MCP Servers within Bob.
+
+#### Installation
+```bash
+# First execute this line to install docker and colima
+brew install colima docker docker-compose docker-buildx
+
+# Now link the docker-compose and docker-buildx commands to the docker CLI
+mkdir -p ~/.docker/cli-plugins
+ln -sfn $(brew --prefix)/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose
+ln -sfn $(brew --prefix)/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
+
+# Finally, start colima
+colima start
+```
+
+#### Verification
+```bash
+# Check Docker is running
+docker --version
+docker info
+```
+
 #### Configuration
 
 1. **Sign in to Bob**
@@ -242,9 +266,8 @@ eval "$(ssh-agent -s)"
 # Add key to agent
 ssh-add ~/.ssh/id_ed25519
 
-# Copy public key
-cat ~/.ssh/id_ed25519.pub
-# Copy the output
+# Copy public key to your clipboard
+cat ~/.ssh/id_ed25519.pub | pbcopy
 
 # Add to GitHub:
 # 1. Go to GitHub Settings > SSH and GPG keys
@@ -287,14 +310,22 @@ The GitHub MCP server enables Bob to interact with GitHub directly.
 1. **Enable MCP in Bob**
    - Open Bob settings
    - Navigate to MCP servers
-   - Enable GitHub MCP
+   - Search for GitHub MCP Server
+   - Click `Install` and select `Global` scope
 
-2. **Authenticate**
-   - Follow authentication flow
-   - Grant necessary permissions
-   - Verify connection
+2. **GitHub Token**
+   - Navigate to https://github.com/settings/tokens
+   - Click "Generate new token" and select Classic Token
+   - Set Expiration to 7 Days
+   - Select scopes: repo, user
+   - Click "Generate Token" and copy it
 
-3. **Test Connection**
+3. **Finalize and Test Connection**
+   - Go back to IBM Bob settings
+   - Paste the token in GitHub Personal Access Token Field
+   - Type "https://github.com" GitHub Hostname (optional) Field
+   - Click "Install"
+   - Now activate "Advanced" mode for Bob
    - Ask Bob: "List my GitHub repositories"
    - Verify Bob can access your repos
 
@@ -359,64 +390,6 @@ All commands should return version numbers:
 - ✅ NPM 6.x.x or higher
 - ✅ Git 2.x.x or higher
 - ✅ Git user.name and user.email configured
-
-## Python Virtual Environment Setup
-
-It's recommended to use virtual environments for Python projects.
-
-### Create Virtual Environment
-
-```bash
-# Navigate to lab directory
-cd lab1
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-
-# macOS/Linux:
-source venv/bin/activate
-
-# Your prompt should now show (venv)
-```
-
-### Install Dependencies
-
-```bash
-# With virtual environment activated
-pip install --upgrade pip
-pip install flask flask-cors
-
-# Verify installation
-pip list
-```
-
-### Deactivate Virtual Environment
-
-```bash
-deactivate
-```
-
-## Node.js Package Management
-
-### Initialize Node.js Project
-
-```bash
-# Navigate to project directory
-cd frontend
-
-# Initialize package.json
-npm init -y
-
-# Install dependencies (when needed)
-npm install
-
-# Verify installation
-npm list
-```
 
 ## Troubleshooting
 

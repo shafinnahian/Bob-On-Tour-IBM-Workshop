@@ -104,7 +104,7 @@ Please help me plan:
 
 Before providing a plan, Bob will ask clarifying questions to understand your requirements better. This is a key differentiator—Bob lets you drive the process while making helpful suggestions.
 
-Bob might ask:
+Bob **might** ask:
 - "How complex should the application be?"
 - "Which database would you prefer (SQLite, PostgreSQL, MySQL)?"
 - "Do you need user authentication?"
@@ -120,7 +120,7 @@ This collaborative approach ensures Bob builds exactly what you need, not what i
 
 **Expected Response from Bob:**
 
-After your clarifications, Bob should provide:
+After your clarifications, Bob should provide a plan for:
 - Directory structure with backend/ and frontend/ folders
 - REST API endpoints (GET, POST, PUT, DELETE)
 - Database schema for todos (id, title, description, completed, created_at)
@@ -136,12 +136,13 @@ Now let's build the Flask backend using Bob's Code mode.
 
 ### 2.1: Switch to Code Mode
 
-Change from Architect to Code mode in Bob's interface.
+Change from `Plan` to `Code` mode in Bob's interface.
 
 ### 2.2: Create Backend Structure
 
-**Prompt for Bob:**
+Without starting a new task, prompt Bob to do the following:
 
+**Prompt for Bob:**
 ```
 Create a Flask backend for the todo app with the following files:
 1. app.py - Main Flask application with CORS enabled
@@ -229,29 +230,28 @@ Create unit test cases for each of the api endpoints, and ensure at least 90% co
 
 ### 2.7: Test Backend Setup
 
-**Important:** Always use a virtual environment to isolate project dependencies.
+**Important:** Always use a virtual environment to isolate project dependencies. Bob usually does that automatically. Anyhow, in case you want to create it yourself, this is how you would do it.
 
-Create a virtual environment and install dependencies:
+How to create a virtual environment and install dependencies:
 
 ```bash
 # Navigate to backend directory
 cd backend
 
 # Create virtual environment
-python3 -m venv venv
+python3 -m venv .venv
 
 # Activate virtual environment
 # Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 # macOS/Linux:
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Run the application
-python app.py
 ```
+
+**Note:** Remember to activate the virtual environment every time you work on the project. You'll know it's activated when you see `(.venv)` in your terminal prompt.
 
 **Why use a virtual environment?**
 - Isolates project dependencies from system Python packages
@@ -259,14 +259,17 @@ python app.py
 - Makes it easy to reproduce the exact environment on other machines
 - Keeps your system Python installation clean
 
-**Note:** Remember to activate the virtual environment every time you work on the project. You'll know it's activated when you see `(venv)` in your terminal prompt.
-
 Alternatively, you can ask Bob to do that for you.
 
 **Prompt for Bob:**
 
 ```bash
 Run the backend application and test it with 1 sample curl command per each API endpoint.
+```
+
+The backend application can be manually started by executing
+```bash
+python3 app.py
 ```
 
 The server should start on `http://localhost:5000`
@@ -280,6 +283,7 @@ The server should start on `http://localhost:5000`
 Now let's create the user interface using JavaScript.
 
 ### 3.1: Create Frontend Structure
+Click on `Start New Task` before running the following queries.
 
 **Prompt for Bob (still in Code mode):**
 
