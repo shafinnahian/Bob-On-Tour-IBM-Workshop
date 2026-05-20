@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App - Modern Task Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main container for the entire application -->
+    <div class="container">
+        <!-- Header section with app title -->
+        <header class="header">
+            <h1>📝 My Todo List</h1>
+            <p class="subtitle">Stay organized and productive</p>
+        </header>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Form for adding new todos -->
+            <section class="add-todo-section">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="todoInput" 
+                        class="todo-input" 
+                        placeholder="What needs to be done?"
+                        aria-label="New todo item"
+                    >
+                    <button 
+                        id="addBtn" 
+                        class="btn btn-primary"
+                        aria-label="Add todo"
+                    >
+                        <span class="btn-text">Add</span>
+                        <span class="btn-icon">+</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Filter and stats section -->
+            <section class="filter-section">
+                <div class="stats">
+                    <span id="totalCount" class="stat-item">Total: 0</span>
+                    <span id="activeCount" class="stat-item">Active: 0</span>
+                    <span id="completedCount" class="stat-item">Completed: 0</span>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+            </section>
+
+            <!-- Loading indicator -->
+            <div id="loadingIndicator" class="loading-indicator hidden">
+                <div class="spinner"></div>
+                <p>Loading todos...</p>
+            </div>
+
+            <!-- Error message display -->
+            <div id="errorMessage" class="error-message hidden">
+                <span class="error-icon">⚠️</span>
+                <span id="errorText"></span>
+                <button id="dismissError" class="dismiss-btn">×</button>
+            </div>
+
+            <!-- Success message display -->
+            <div id="successMessage" class="success-message hidden">
+                <span class="success-icon">✓</span>
+                <span id="successText"></span>
+            </div>
+
+            <!-- Empty state message -->
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-icon">📋</div>
+                <h2>No todos yet</h2>
+                <p>Add your first task to get started!</p>
+            </div>
+
+            <!-- Todo list container -->
+            <section class="todo-list-section">
+                <ul id="todoList" class="todo-list">
+                    <!-- Todo items will be dynamically inserted here -->
+                </ul>
+            </section>
+        </main>
+
+        <!-- Footer with additional info -->
+        <footer class="footer">
+            <p>Built with ❤️ using Flask & Vanilla JavaScript</p>
+        </footer>
+    </div>
+
+    <!-- Link to JavaScript file -->
+    <script src="app.js"></script>
+</body>
+</html>
